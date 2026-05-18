@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Context Saver</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:       #f5f6fa;
+      --surface:  #ffffff;
+      --surface2: #f0f1f8;
+      --border:   #e2e4f0;
+      --border2:  #d0d3e8;
+      --accent:   #4f46e5;
+      --accent-light: #ede9fe;
+      --accent2:  #e53e6d;
+      --accent2-light: #fce7ef;
+      --accent3:  #0ea56e;
+      --accent3-light: #d1fae5;
+      --orange:   #f97316;
+      --orange-light: #fff0e6;
+      --text:     #1a1a2e;
+      --text2:    #4a4a6a;
+      --muted:    #9090b0;
+      --human:    #4f46e5;
+      --ai:       #0ea56e;
+      --shadow:   0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 400px;
+      min-height: 500px;
+      max-height: 680px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+      font-size: 13px;
+    }
+
+    /* ── HEADER ─────────────────────────────── */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+    .logo {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent), #7c3aed);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(79,70,229,0.3);
+    }
+    .header-text h1 {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+    .header-text p {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 1px;
+      font-weight: 400;
+    }
+    .platform-badge {
+      margin-left: auto;
+      background: var(--accent-light);
+      color: var(--accent);
+      border-radius: 20px;
+      padding: 4px 11px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    /* ── BODY ───────────────────────────────── */
+    .body {
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+      max-height: 630px;
+    }
+
+    /* ── STATUS BAR ─────────────────────────── */
+    .status-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 13px;
+      font-size: 11px;
+      color: var(--text2);
+      display: flex; align-items: center; gap: 8px;
+      box-shadow: var(--shadow-sm);
+      font-weight: 500;
+    }
+    .status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--muted);
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .status-dot.active {
+      background: var(--accent3);
+      box-shadow: 0 0 0 2px var(--accent3-light);
+      animation: pulse 2s infinite;
+    }
+    .status-dot.error {
+      background: var(--accent2);
+      box-shadow: 0 0 0 2px var(--accent2-light);
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
+
+    /* ── TABS ───────────────────────────────── */
+    .tabs {
+      display: flex;
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 2px;
+    }
+    .tab {
+      flex: 1;
+      padding: 7px 4px;
+      border-radius: 8px;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .tab.active {
+      background: var(--surface);
+      color: var(--accent);
+      box-shadow: var(--shadow-sm);
+    }
+    .tab:not(.active):hover { color: var(--text2); }
+
+    .tab-content { display: none; flex-direction: column; gap: 10px; }
+    .tab-content.active { display: flex; }
+
+    /* ── BUTTONS ────────────────────────────── */
+    .btn {
+      border: none; cursor: pointer; border-radius: 10px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 10px 12px;
+      transition: all 0.15s ease;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      letter-spacing: -0.01em;
+    }
+    .btn:active { transform: scale(0.975); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent) 0%, #7c3aed 100%);
+      color: #fff;
+      padding: 13px;
+      font-size: 13px;
+      box-shadow: 0 2px 12px rgba(79,70,229,0.35);
+    }
+    .btn-primary:hover { box-shadow: 0 4px 20px rgba(79,70,229,0.45); filter: brightness(1.05); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; filter: none; box-shadow: none; }
+
+    .btn-mistral {
+      background: linear-gradient(135deg, var(--orange), #ea580c);
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(249,115,22,0.3);
+    }
+    .btn-mistral:hover { box-shadow: 0 4px 16px rgba(249,115,22,0.4); filter: brightness(1.05); }
+    .btn-mistral:disabled { opacity: 0.5; cursor: not-allowed; filter: none; box-shadow: none; }
+
+    .btn-outline {
+      background: var(--surface);
+      color: var(--accent);
+      border: 1.5px solid var(--accent-light);
+      font-weight: 600;
+    }
+    .btn-outline:hover { background: var(--accent-light); border-color: var(--accent); }
+
+    .btn-ghost {
+      background: var(--surface);
+      color: var(--text2);
+      border: 1.5px solid var(--border);
+      font-weight: 600;
+    }
+    .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+
+    .btn-danger {
+      background: var(--surface);
+      color: var(--accent2);
+      border: 1.5px solid var(--accent2-light);
+      font-weight: 600;
+    }
+    .btn-danger:hover { background: var(--accent2-light); }
+
+    .actions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .actions-row .full { grid-column: 1 / -1; }
+
+    /* ── INFO TIP ───────────────────────────── */
+    .tip-box {
+      background: var(--accent-light);
+      border-radius: 9px;
+      padding: 9px 12px;
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 500;
+      line-height: 1.55;
+      display: flex; gap: 8px; align-items: flex-start;
+    }
+    .tip-box .tip-icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── STATS ──────────────────────────────── */
+    .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+    .stat-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 8px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-num {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 3px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── SECTION LABEL ──────────────────────── */
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    /* ── PREVIEW BOX ────────────────────────── */
+    .preview-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      max-height: 170px;
+      overflow-y: auto;
+      padding: 10px 12px;
+      box-shadow: var(--shadow-sm);
+    }
+    .preview-box::-webkit-scrollbar { width: 4px; }
+    .preview-box::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+    .msg-line { margin-bottom: 8px; }
+    .msg-role {
+      font-size: 9px; font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .msg-role.human { color: var(--human); }
+    .msg-role.ai { color: var(--ai); }
+    .msg-text { font-size: 11px; color: var(--text2); line-height: 1.5; font-weight: 400; }
+
+    /* ── PROMPT BOX ─────────────────────────── */
+    .prompt-box {
+      background: var(--surface);
+      border: 1.5px solid var(--accent-light);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 11px;
+      color: var(--text2);
+      max-height: 130px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      line-height: 1.6;
+      box-shadow: var(--shadow-sm);
+    }
+    .prompt-box::-webkit-scrollbar { width: 4px; }
+    .prompt-box::-webkit-scrollbar-thumb { background: var(--accent-light); border-radius: 4px; }
+
+    /* ── SUMMARY BOX ────────────────────────── */
+    .summary-box {
+      background: var(--orange-light);
+      border: 1.5px solid rgba(249,115,22,0.25);
+      border-radius: 10px;
+      padding: 11px 13px;
+      font-size: 11px;
+      color: var(--text);
+      max-height: 150px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      line-height: 1.7;
+    }
+    .summary-box::-webkit-scrollbar { width: 4px; }
+    .summary-box::-webkit-scrollbar-thumb { background: rgba(249,115,22,0.3); border-radius: 4px; }
+
+    .summary-header {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .summary-label-text {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 10px; font-weight: 800;
+      color: var(--orange);
+      text-transform: uppercase; letter-spacing: 0.07em;
+    }
+    .mistral-badge {
+      background: var(--orange-light);
+      border: 1px solid rgba(249,115,22,0.3);
+      color: var(--orange);
+      border-radius: 20px;
+      padding: 2px 8px;
+      font-size: 9px;
+      font-weight: 700;
+    }
+
+    /* ── SAVED SESSIONS ─────────────────────── */
+    .saved-session {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 13px;
+      display: flex; align-items: center; gap: 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+      box-shadow: var(--shadow-sm);
+    }
+    .saved-session:hover {
+      border-color: var(--accent);
+      box-shadow: 0 2px 12px rgba(79,70,229,0.1);
+    }
+    .session-icon { font-size: 18px; flex-shrink: 0; }
+    .session-info { flex: 1; min-width: 0; }
+    .session-title {
+      font-size: 12px; font-weight: 700;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      color: var(--text);
+    }
+    .session-meta {
+      font-size: 10px; color: var(--muted);
+      margin-top: 2px; font-weight: 500;
+    }
+    .session-del {
+      background: none; border: none;
+      color: var(--muted); cursor: pointer;
+      font-size: 13px; padding: 4px 6px;
+      border-radius: 6px; transition: all 0.15s;
+    }
+    .session-del:hover { background: var(--accent2-light); color: var(--accent2); }
+
+    /* ── SETTINGS ───────────────────────────── */
+    .settings-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex; flex-direction: column; gap: 10px;
+      box-shadow: var(--shadow-sm);
+    }
+    .settings-section-title {
+      font-size: 11px; font-weight: 800;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .settings-badge {
+      background: var(--orange-light);
+      color: var(--orange);
+      border-radius: 20px;
+      padding: 2px 8px;
+      font-size: 9px;
+      font-weight: 700;
+    }
+
+    .api-status {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 8px 11px;
+      border-radius: 8px;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .api-status.connected {
+      background: var(--accent3-light);
+      color: var(--accent3);
+    }
+    .api-status.disconnected {
+      background: var(--accent2-light);
+      color: var(--accent2);
+    }
+
+    .api-key-row { display: flex; gap: 7px; }
+    .api-key-input {
+      flex: 1;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 11px;
+      font-size: 11px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+      font-weight: 500;
+    }
+    .api-key-input:focus { border-color: var(--accent); }
+    .api-key-input::placeholder { color: var(--muted); }
+
+    .btn-save-key {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 11px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: filter 0.15s;
+    }
+    .btn-save-key:hover { filter: brightness(1.1); }
+
+    .api-hint {
+      font-size: 10px; color: var(--muted);
+      font-weight: 500; line-height: 1.6;
+    }
+    .api-hint b { color: var(--accent); font-weight: 700; }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Radio group */
+    .radio-group { display: flex; flex-direction: column; gap: 6px; }
+    .radio-label {
+      display: flex; align-items: center; gap: 9px;
+      font-size: 12px; cursor: pointer;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      transition: all 0.15s;
+      font-weight: 500;
+      color: var(--text2);
+    }
+    .radio-label:has(input:checked) {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+    .radio-label input[type="radio"] {
+      accent-color: var(--accent);
+      width: 14px; height: 14px; flex-shrink: 0;
+    }
+    .radio-label b { font-weight: 700; }
+
+    /* Slider */
+    .slider-row {
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .slider-row input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+      height: 4px;
+    }
+    .slider-val {
+      text-align: right;
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    /* ── EMPTY STATE ─────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 30px 20px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .empty-icon { font-size: 32px; margin-bottom: 10px; }
+    .empty-state p { margin-top: 5px; font-size: 11px; }
+
+    /* ── SPINNER ─────────────────────────────── */
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none; flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── TOAST ───────────────────────────────── */
+    #toast {
+      position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
+      background: var(--text);
+      color: #fff;
+      padding: 9px 20px;
+      border-radius: 20px;
+      font-size: 12px; font-weight: 700;
+      opacity: 0; transition: opacity 0.2s;
+      pointer-events: none; z-index: 999;
+      white-space: nowrap;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    #toast.show { opacity: 1; }
+
+    .hidden { display: none !important; }
+
+    /* small inline copy btn */
+    .btn-inline-copy {
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      color: var(--accent);
+      border-radius: 7px;
+      padding: 4px 10px;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: all 0.15s;
+    }
+    .btn-inline-copy:hover { background: var(--accent-light); border-color: var(--accent); }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">🧠</div>
+  <div class="header-text">
+    <h1>AI Context Saver</h1>
+    <p>Never lose your conversation</p>
+  </div>
+  <div class="platform-badge" id="platformBadge">Detecting…</div>
+</div>
+
+<!-- BODY -->
+<div class="body">
+
+  <!-- STATUS -->
+  <div class="status-bar">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">Ready — click Extract to begin</span>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" data-tab="extract">Extract</button>
+    <button class="tab" data-tab="saved">Saved</button>
+    <button class="tab" data-tab="settings">Settings</button>
+  </div>
+
+  <!-- ═══════════ TAB: EXTRACT ═══════════ -->
+  <div class="tab-content active" id="tab-extract">
+
+    <!-- Extract button -->
+    <button class="btn btn-primary" id="btnExtract">
+      <div class="spinner" id="spinner"></div>
+      <span id="btnExtractLabel">⚡ Extract Full Chat</span>
+    </button>
+
+    <!-- Tip -->
+    <div class="tip-box">
+      <span class="tip-icon">⚡</span>
+      <span><b>Auto-scroll active</b> — just click Extract. The extension scrolls through your entire chat automatically and captures every message.</span>
+    </div>
+
+    <!-- Stats -->
+    <div id="statsSection" class="hidden">
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-num" id="statMessages">0</div>
+          <div class="stat-label">Messages</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="statTokens">0</div>
+          <div class="stat-label">~Tokens</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="statTurns">0</div>
+          <div class="stat-label">Turns</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview -->
+    <div id="previewSection" class="hidden">
+      <div class="section-label">
+        <span>Chat Preview</span>
+        <span id="previewCount" style="color:var(--accent);font-weight:700;"></span>
+      </div>
+      <div class="preview-box" id="previewBox"></div>
+    </div>
+
+    <!-- Action buttons -->
+    <div id="actionsSection" class="hidden">
+      <div class="actions-row">
+        <button class="btn btn-mistral full" id="btnAISummary" disabled>
+          <div class="spinner" id="spinnerMistral"></div>
+          <span id="btnAISummaryLabel">🤖 AI Smart Summary (Mistral)</span>
+        </button>
+        <button class="btn btn-outline" id="btnCopyPrompt">📋 Copy Raw</button>
+        <button class="btn btn-ghost" id="btnSaveSession">💾 Save</button>
+      </div>
+    </div>
+
+    <!-- AI Summary output -->
+    <div id="summarySection" class="hidden">
+      <div class="summary-header">
+        <div class="summary-label-text">
+          ✨ AI Summary
+          <span class="mistral-badge">Mistral Free</span>
+        </div>
+        <button class="btn-inline-copy" id="btnCopySummary">📋 Copy</button>
+      </div>
+      <div class="summary-box" id="summaryBox"></div>
+    </div>
+
+    <!-- Raw prompt output -->
+    <div id="promptSection" class="hidden">
+      <div class="section-label">
+        <span>Raw Continuation Prompt</span>
+      </div>
+      <div class="prompt-box" id="promptBox"></div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════ TAB: SAVED ═══════════ -->
+  <div class="tab-content" id="tab-saved">
+    <div id="savedList"></div>
+  </div>
+
+  <!-- ═══════════ TAB: SETTINGS ═══════════ -->
+  <div class="tab-content" id="tab-settings">
+
+    <!-- Mistral API Key -->
+    <div class="settings-section">
+      <div class="settings-section-title">
+        🤖 Mistral API Key
+        <span class="settings-badge">FREE TIER</span>
+      </div>
+      <div id="apiStatusBar" class="api-status disconnected">
+        ⚠ No API key — AI Summary disabled
+      </div>
+      <div class="api-key-row">
+        <input type="password" class="api-key-input" id="mistralKeyInput" placeholder="Paste Mistral API key…">
+        <button class="btn-save-key" id="btnSaveKey">Save</button>
+      </div>
+      <div class="api-hint">
+        Get free key at <b>console.mistral.ai</b> → API Keys → Create.<br>
+        Stored locally only — never sent to any server except Mistral.
+      </div>
+    </div>
+
+    <!-- Summary Style -->
+    <div class="settings-section">
+      <div class="settings-section-title">📝 Raw Copy Style</div>
+      <div class="radio-group">
+        <label class="radio-label">
+          <input type="radio" name="summaryMode" value="full" checked>
+          <span><b>Full History</b> — entire conversation</span>
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="summaryMode" value="smart">
+          <span><b>Smart</b> — first 2 + last 8 messages</span>
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="summaryMode" value="minimal">
+          <span><b>Minimal</b> — last 3 AI responses only</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Context limit -->
+    <div class="settings-section">
+      <div class="settings-section-title">📊 Raw Copy Limit</div>
+      <div class="slider-row">
+        <input type="range" id="contextLimit" min="5" max="100" value="50">
+        <div class="slider-val">Last <span id="contextLimitVal">50</span> messages</div>
+      </div>
+      <div class="api-hint">Only affects raw copy mode. AI Summary always uses the full extracted chat.</div>
+    </div>
+
+    <!-- Danger zone -->
+    <button class="btn btn-danger" id="btnClearAll">🗑 Clear All Saved Sessions</button>
+
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script src="popup.js"></script>
+</body>
+</html>
