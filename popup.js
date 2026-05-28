@@ -224,26 +224,51 @@ btnExtract.addEventListener('click', async () => {
   setLoading(false);
 });
 
+// ── FILTER GARBAGE MESSAGES ───────────────────────────────
+// Remove any messages that are themselves context summaries/continuations
+// (happens when user pastes a summary into a chat and then extracts it)
+function filterGarbageMessages(messages) {
+  const GARBAGE_PREFIXES = [
+    '[AI CONTEXT SUMMARY',
+    '[CONTEXT CONTINUATION',
+    'This is a continuation of a previous AI',
+    'Please read the above summary',
+    'Please read the above conversation',
+    '[READY — Please respond with',
+    'Got it! I understand your previous context',
+    "Got it! I've read your previous conversation",
+  ];
+
+  return messages.filter(msg => {
+    const text = msg.text.trim();
+    return !GARBAGE_PREFIXES.some(prefix => text.startsWith(prefix));
+  });
+}
+
 // ── DISPLAY DATA ──────────────────────────────────────────
 function displayExtractedData(data) {
-  const limit = parseInt(contextLimit.value) || 20;
+  const limit = parseInt(contextLimit.value) || 50;
+
+  // Filter garbage FIRST before anything else
+  const cleanMessages = filterGarbageMessages(data.messages);
+  // Store cleaned messages back so Mistral also gets clean data
+  data.messages = cleanMessages;
+
   // For preview & raw copy: respect the limit slider
-  const messages = data.messages.slice(-limit);
-  // For stats: show totals
-  const allMessages = data.messages;
+  const messages = cleanMessages.slice(-limit);
+  // For stats: show totals from cleaned set
+  const humanCount = cleanMessages.filter(m => m.role === 'human').length;
+  const aiCount    = cleanMessages.filter(m => m.role === 'ai').length;
+  const approxTokens = Math.round(cleanMessages.reduce((s, m) => s + m.text.length, 0) / 4);
 
-  const humanCount = allMessages.filter(m => m.role === 'human').length;
-  const aiCount = allMessages.filter(m => m.role === 'ai').length;
-  const approxTokens = Math.round(allMessages.reduce((s, m) => s + m.text.length, 0) / 4);
-
-  document.getElementById('statMessages').textContent = allMessages.length;
+  document.getElementById('statMessages').textContent = cleanMessages.length;
   document.getElementById('statTokens').textContent = approxTokens > 999
     ? (approxTokens / 1000).toFixed(1) + 'k' : approxTokens;
   document.getElementById('statTurns').textContent = Math.min(humanCount, aiCount);
 
   statsSection.classList.remove('hidden');
 
-  // Preview
+  // Preview — show last 8 clean messages
   previewBox.innerHTML = '';
   messages.slice(-8).forEach(msg => {
     const div = document.createElement('div');
@@ -259,10 +284,10 @@ function displayExtractedData(data) {
     previewBox.appendChild(div);
   });
 
-  previewCount.textContent = `${messages.length} msgs`;
+  previewCount.textContent = `${cleanMessages.length} msgs`;
   previewSection.classList.remove('hidden');
 
-  // Generate continuation prompt
+  // Generate continuation prompt from clean messages
   const prompt = buildContinuationPrompt(data, messages);
   promptBox.textContent = prompt;
   promptSection.classList.remove('hidden');
@@ -558,8 +583,7 @@ function setLoading(loading) {
   btnExtractLabel.textContent = loading ? 'Extracting…' : '⚡ Extract Chat';
 }
 
-function setMistralLoading(loading) {
-  btnAISummary.disabled = loading;
+function setMistralLoading(loading) {  btnAISummary.disabled = loading;
   spinnerMistral.style.display = loading ? 'block' : 'none';
   btnAISummaryLabel.textContent = loading ? 'Summarizing…' : '🤖 AI Smart Summary (Mistral)';
 }
