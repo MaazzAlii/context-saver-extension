@@ -2,17 +2,17 @@
 
 **Never lose your AI conversation again.** A Chrome extension that captures your full chat history from any AI platform, then uses Mistral AI to compress it into a smart summary — so you can continue in a new session with almost zero context used.
 
-[![Version](https://img.shields.io/badge/version-2.0.0-4f46e5?style=flat-square)](https://github.com/maazzalii/ai-context-saver-pro)
+[![Version](https://img.shields.io/badge/version-2.0.0-4f46e5?style=flat-square)](https://github.com/maazzalii/context-saver-extension)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-4285F4?style=flat-square&logo=googlechrome)](https://developer.chrome.com/docs/extensions/mv3/)
 [![Mistral AI](https://img.shields.io/badge/Powered%20by-Mistral%20AI-ff6b35?style=flat-square)](https://mistral.ai)
 [![Free Tier](https://img.shields.io/badge/API-Free%20Tier-0ea56e?style=flat-square)](https://console.mistral.ai)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
-> 🔗 **No API key?** Use the free version without any setup: [ai-context-saver](https://github.com/maazzalii/ai-context-saver)
+> 🔗 **No API key?** Use the free version without any setup: [ai-context-saver](https://github.com/maazzalii/context-saver-extension)
 
 ---
 
-## 😤 The Problem
+## The Problem
 
 Anyone using AI tools seriously for coding, writing, or research hits this wall:
 
@@ -26,7 +26,7 @@ On top of that, modern AI platforms like Claude and ChatGPT use **virtual DOM sc
 
 ## ✅ The Solution
 
-**AI Context Saver Pro** solves both problems:
+**Context Saver Extension** solves both problems:
 
 1. **Auto-scroll extraction** — the extension takes control of the page, scrolls up through your entire chat step by step, captures every single message as it loads into the DOM, then scrolls back down. No manual scrolling needed.
 
@@ -69,9 +69,9 @@ On top of that, modern AI platforms like Claude and ChatGPT use **virtual DOM sc
 
 ### Step 2 — Download
 ```bash
-git clone https://github.com/maazzalii/ai-context-saver-pro.git
+git clone https://github.com/maazzalii/context-saver-extension.git
 ```
-Or download the ZIP from the [Releases](https://github.com/maazzalii/ai-context-saver-pro/releases) page and unzip it.
+Or download the ZIP from the [Releases](https://github.com/maazzalii/context-saver-extension/releases) page and unzip it.
 
 ### Step 3 — Load in Chrome
 1. Open Chrome and go to `chrome://extensions/`
@@ -79,7 +79,7 @@ Or download the ZIP from the [Releases](https://github.com/maazzalii/ai-context-
 3. Click **"Load unpacked"**
 4. Select the `ai-context-saver-pro` folder
 
-### Step 4 — Add Your API Key *(optional)*
+### Step 4 — Add Your API Key
 1. Click the 🧠 extension icon in your toolbar
 2. Go to the **Settings** tab
 3. Paste your Mistral API key → click **Save**
@@ -208,7 +208,7 @@ ai-context-saver-pro/
 | **API key invalid error** | Re-copy from console.mistral.ai — make sure there are no spaces |
 | **429 Too Many Requests** | Wait 1 minute (free tier: 30 requests/minute limit) |
 | **Summary includes pasted context** | This is filtered automatically — if it still appears, re-extract after refreshing |
-| **Extension not responding** | Go to chrome://extensions/ → find AI Context Saver Pro → click the refresh icon |
+| **Extension not responding** | Go to chrome://extensions/ → Context Saver Extension → click the refresh icon |
 
 ---
 
@@ -221,13 +221,6 @@ ai-context-saver-pro/
 
 ---
 
-## 🆓 No API Key? No Problem
-
-If you don't want to set up an API key, the free version copies your raw conversation without any summarization:
-
-**👉 [ai-context-saver](https://github.com/maazzalii/ai-context-saver)** — same auto-scroll extraction, no API required, copy the full conversation directly. Perfect for getting started immediately.
-
----
 
 ## 🗺️ Roadmap
 
