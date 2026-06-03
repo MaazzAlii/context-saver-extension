@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "AI Context Saver",
+  "name": "AI Context Saver – ChatGPT & Claude Memory Tool",
   "version": "1.0.0",
   "description": "Save, summarize, and continue your AI chat sessions across any platform.",
   "permissions": [
